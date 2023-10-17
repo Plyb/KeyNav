@@ -1,0 +1,15 @@
+a {
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 18rem;
+    overflow: hidden;
+}
+
+input {
+    width: 18rem;
+}
+
+body {
+    width: 20rem;
+}

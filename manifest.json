@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "KeyNav",
+  "description": "Navigate the web via the keyboard",
+  "version": "1.0",
+  "permissions": ["scripting", "activeTab"],
+  "action": {
+    "default_popup": "main.html",
+    "default_icon": "hello_extensions.png"
+  },
+  "commands": {
+    "_execute_action": {
+        "suggested_key": {
+            "windows": "Alt+K"
+        }
+      }
+  },
+  "content_scripts": [{
+    "js": ["content.js"],
+    "matches": ["<all_urls>"]
+  }]
+}
