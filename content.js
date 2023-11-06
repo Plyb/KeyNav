@@ -41,10 +41,8 @@ function getSelectables() {
 let selectables = getSelectables();
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    console.log(msg)
     const type = msg.type;
     if (type === 'get-selectables') {
-        console.log(selectables);
         sendResponse(selectables);
     } else if (type === 'go') {
         selectables[msg.index].el.focus();

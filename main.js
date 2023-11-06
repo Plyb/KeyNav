@@ -5,13 +5,13 @@ const optionsElement = document.getElementById('options');
 function onInput(event) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { type: 'get-selectables' }, (pageSelectables) => {
-            selectables = pageSelectables.filter(selectable => selectable.command.toLowerCase().includes(event.target.value.toLowerCase()));
+            selectables = pageSelectables
+                .filter(selectable => selectable.command.toLowerCase().includes(event.target.value.toLowerCase()))
+                .sort((a, b) => a.length < b.length);
 
             while (optionsElement.lastElementChild) {
                 optionsElement.removeChild(optionsElement.lastElementChild);
             }
-
-            console.log(selectables);
 
             const topOptions = selectables.slice(0, 10);
             for (const option of topOptions) {
