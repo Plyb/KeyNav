@@ -1,4 +1,4 @@
-function getSelectables() {
+function getSelectables(root) {
     function isVisible(element) {
         return element.offsetWidth > 0
             || element.offsetHeight > 0
@@ -18,7 +18,7 @@ function getSelectables() {
             || ('child of ' + getCommand(element.parentElement));
     }
 
-    const labels = [...document.getElementsByTagName('label')].reduce((prev, curr) => ({...prev, [curr.htmlFor]: curr}), {})
+    const labels = [...root.querySelectorAll('label')].reduce((prev, curr) => ({...prev, [curr.htmlFor]: curr}), {})
 
     function getLabelCommand(element)
     {
@@ -29,26 +29,28 @@ function getSelectables() {
         return getCommand(label);
     }
 
-    return [...document.querySelectorAll('a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])')]
+    const nodes = [...root.querySelectorAll('a[href], button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])')]
         .filter(isVisible)
-        .map((el, index) => ({
+        .map(el => ({
             command: getCommand(el),
             el,
-            index,
         }));
+    const shadowNodes = [...root.querySelectorAll(':empty')].filter(node => node.shadowRoot);
+
+    return [...nodes, ...shadowNodes.map(shadowNode => getSelectables(shadowNode.shadowRoot)).flat()].sort((a, b) => a.command.length - b.command.length);
 }
 
-let selectables = getSelectables();
+let selectables = getSelectables(document);
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const type = msg.type;
     if (type === 'get-selectables') {
-        sendResponse(selectables);
+        sendResponse(selectables.map((selectable, index) => ({...selectable, index})));
     } else if (type === 'go') {
         selectables[msg.index].el.focus();
     }
 })
 
-const observer = new MutationObserver(() => selectables = getSelectables())
+const observer = new MutationObserver(() => selectables = getSelectables(document))
 
 observer.observe(document.body, { attributes: true, childList: true, subtree: true });
